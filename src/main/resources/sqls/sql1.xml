@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration>
+	<resultMap id="authorResult" type="Author">
+	  <id property="id" column="author_id"/>
+	  <result property="username" column="author_username"/>
+	  <result property="password" column="author_password"/>
+	  <result property="email" column="author_email"/>
+	  <result property="bio" column="author_bio"/>
+	</resultMap>
+	
+	<mapper namespace="connpool.test.selectmap">
+	    <select id="getUser" parameterType="int" 
+	        resultType="ConnectionPool.ConnectionPool.test.vo">
+	        select * from wh_employee_info
+	        <if test="" >
+		         where id=#{id}
+	        </if>
+	    </select>
+	    <select id="getUser1" parameterType="int" 
+	        resultType="ConnectionPool.ConnectionPool.test.vo">
+	        select * from aos_rms_user
+	        <if test="cGuid > 10" >
+		         where cGuid=#{cGuid}
+	        </if>
+	    </select>
+	</mapper>
+</configuration>

@@ -15,6 +15,7 @@ public class DomFactory {
 	
 	private static ConcurrentHashMap<String, Map<String,Node>> namespaceDom;
 	private static ConcurrentHashMap<String, ResultMap> resultMaps;
+	private static ConcurrentHashMap<String, String> publicSqls;
 	
 	public void addDom(String namespace,String id,Node node) {
 		if (namespaceDom.containsKey(namespace)) {
@@ -31,11 +32,19 @@ public class DomFactory {
 		resultMaps.put(id, map);
 	}
 	
+	public void addPublicSql(String id,String sql) {
+		publicSqls.put(id, sql);
+	}
+	
 	public Node getNode(String namespace,String id) {
 		return namespaceDom.get(namespace).get(id);
 	}
 	public ResultMap getResultMap(String id) {
 		return resultMaps.get(id);
+	}
+	
+	public String getPublicSql(String id) {
+		return publicSqls.get(id);
 	}
 	
 	public Sqls getSqlFromNode(Node n,Map<String, Object> args) {
@@ -61,6 +70,9 @@ public class DomFactory {
 				if ("if".equals(child.getNodeName())) {
 					sql = DomReader.readNodeTest(child, sql,args);
 				}
+				if ("include".equals(child.getNodeName())) {
+					sql = DomReader.readIncludeSql(child, sql, args,factory);
+				}
 			}
 		}
 		sqls.sql = sql;
@@ -77,6 +89,7 @@ public class DomFactory {
 	private DomFactory() {
 		namespaceDom = new ConcurrentHashMap<String, Map<String,Node>>();
 		resultMaps = new ConcurrentHashMap<String, ResultMap>();
+		publicSqls = new ConcurrentHashMap<String,String>();
 	}
 	
 }

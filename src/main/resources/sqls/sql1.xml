@@ -8,17 +8,22 @@
 	  <result property="bio" column="author_bio"/>
 	</resultMap>
 	
+	<sql id="select*" >
+		select * from ${table}
+	</sql>
+	
 	<mapper namespace="connpool.test.selectmap">
 	    <select id="getUser" parameterType="int" 
 	        resultType="ConnectionPool.ConnectionPool.test.vo">
-	        select * from wh_employee_info
+	        <include refid="select*" ><property name="table" value="tname" /></include>
+	        as wh_employee_info
 	        <if test="" >
 		         where id=#{id}
 	        </if>
 	    </select>
 	    <select id="getUser1" parameterType="int" 
 	        resultType="ConnectionPool.ConnectionPool.test.vo">
-	        select * from aos_rms_user
+	        <include refid="select*" ><property name="table" value="tname" /></include>
 	        <if test="cGuid > 10" >
 		         where cGuid=#{cGuid}
 	        </if>

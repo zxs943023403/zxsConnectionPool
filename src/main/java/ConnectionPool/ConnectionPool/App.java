@@ -12,6 +12,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import ConnectionPool.ConnectionPool.mainpool.Pool;
+import ConnectionPool.ConnectionPool.mainpool.PoolConfig;
 import ConnectionPool.ConnectionPool.test.vo;
 
 /**
@@ -29,8 +30,9 @@ public class App {
 			try {
 				Map<String, Object> map = new HashMap<String, Object>();
 				map.put("cGuid", "109230319479134175");
+				map.put("tname", "aos_rms_user");
 				long start =System.currentTimeMillis();
-				results = Pool.getInstance().exec("connpool.test.selectmap", "getUser1",map);
+				results = PoolConfig.getConfig().poolExec("mysqlDB2","connpool.test.selectmap", "getUser1",map);
 				System.out.println("all cost:"+(System.currentTimeMillis() - start));
 				if (results instanceof JSONArray) {
 					System.out.println("jsonobject?");
@@ -60,7 +62,7 @@ public class App {
     public static void chaxun(){
     	try {
     		String sql = "select * from aos_rms_user";
-			Object results = Pool.getInstance().exec(sql,Pool.EXEC_TYPE.TYPE_QUERY);
+			Object results = PoolConfig.getConfig().poolExec(sql,Pool.EXEC_TYPE.TYPE_QUERY);
 			if (results instanceof JSONArray) {
 				for (int i = 0; i < ((JSONArray)results).size(); i++) {
 					JSONObject obj = (JSONObject) ((JSONArray) results).get(i);
@@ -81,7 +83,7 @@ public class App {
     		pool.schedule(()->{
     			try {
     				String sql = "insert into indexs values(?)";
-					Pool.getInstance().exec(sql,Pool.EXEC_TYPE.TYPE_UPDATE,new Random().nextInt());
+    				PoolConfig.getConfig().poolExec(sql,Pool.EXEC_TYPE.TYPE_UPDATE,new Random().nextInt());
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

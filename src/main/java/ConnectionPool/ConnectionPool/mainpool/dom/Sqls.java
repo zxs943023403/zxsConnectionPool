@@ -15,18 +15,21 @@ public class Sqls {
 	
 	public void sqlParams(Map<String, Object> map) {
 		sql = changeSqlParams(sql, map);
+		sql = changeSqlStrs(sql, map);
 		System.out.println(sql);
 	}
 	
-	/*public static void main(String[] args) {
-		String txt = "asd#{aa.bb}123";
-		Map<String, String> map = new HashMap<>();
+	public static void main(String[] args) {
+		String txt = "asd${aa.bb}123";
+		Map<String, Object> map = new HashMap<>();
 		map.put("aa.bb", "123");
-		System.out.println(muiltChangeLang(txt, map));
-	}*/
+		System.out.println(new Sqls().changeSqlStrs(txt, map));
+	}
 	
-	//大括号正则表达式{xx}
+	//大括号正则表达式#{xx}
 	private static String pattern = "(?<=#\\{)(.+?)(?=\\})";
+	//大括号正则表达式${xx}
+	private static String strPattern = "(?<=\\$\\{)(.+?)(?=\\})";
 
 	/**
 	 * context多语言文字
@@ -37,9 +40,9 @@ public class Sqls {
 	 */
 	private String changeSqlParams(String context, Map<String, Object> values) {
 		Pattern p = Pattern.compile(pattern);
-		StringBuffer svg = new StringBuffer(context);
-		if (sqlHasParams(svg.toString(), pattern) && values != null) {
-			Matcher m = p.matcher(svg);
+		StringBuffer sql = new StringBuffer(context);
+		if (sqlHasParams(sql.toString(), pattern) && values != null) {
+			Matcher m = p.matcher(sql);
 			List<String> ls = new ArrayList<String>();
 			while (m.find()) {
 				ls.add(m.group());
@@ -47,11 +50,27 @@ public class Sqls {
 			args = new Object[ls.size()];
 			int index = 0;
 			for (String string : ls) {
-				svg = new StringBuffer(svg.toString().replaceAll("#\\{" + string + "\\}", " ? "));
+				sql = new StringBuffer(sql.toString().replaceAll("#\\{" + string + "\\}", " ? "));
 				args[index++] = values.get(string);
 			}
 		}
-		return svg.toString();
+		return sql.toString();
+	}
+	
+	private String changeSqlStrs(String context, Map<String, Object> values) {
+		Pattern p = Pattern.compile(strPattern);
+		StringBuffer sql = new StringBuffer(context);
+		if (sqlHasParams(context, strPattern) && null != values ) {
+			Matcher m = p.matcher(sql);
+			List<String> ls = new ArrayList<String>();
+			while (m.find()) {
+				ls.add(m.group());
+			}
+			for (String string : ls) {
+				sql = new StringBuffer(sql.toString().replaceAll("\\$\\{" + string + "\\}", values.get(string)+""));
+			}
+		}
+		return sql.toString();
 	}
 
 	private boolean sqlHasParams(String context, String pattern) {

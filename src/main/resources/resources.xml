@@ -1,0 +1,20 @@
+<configuration>
+	<properties resource="resources.properties">
+	  <property name="username" value="dev_user"/>
+	  <property name="password" value="F2Fa3!33TYyg"/>
+	</properties>
+	<dataSource id="mysqlDB" type="POOLED">
+	  <property name="driver" value="${DbDriver}"/>
+	  <property name="url" value="${ConnUrl}"/>
+	  <property name="username" value="${DbUserName}"/>
+	  <property name="password" value="${DbPassword}"/>
+	</dataSource>
+	
+	<dataSource id="mysqlDB2" type="POOLED">
+	  <property name="driver" value="${DbDriver}"/>
+	  <property name="url" value="${ConnUrl1}"/>
+	  <property name="username" value="${DbUserName}"/>
+	  <property name="password" value="${DbPassword}"/>
+	</dataSource>
+	
+</configuration>

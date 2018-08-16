@@ -29,6 +29,7 @@ import org.w3c.dom.Node;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
+import ConnectionPool.ConnectionPool.mainpool.dom.DataSource;
 import ConnectionPool.ConnectionPool.mainpool.dom.DomFactory;
 import ConnectionPool.ConnectionPool.mainpool.dom.Sqls;
 import ConnectionPool.ConnectionPool.util.PoolUtil;
@@ -36,8 +37,6 @@ import ConnectionPool.ConnectionPool.util.PoolUtil;
 public class Pool {
 	
 	private LinkedList<Conn> conns = new LinkedList<Pool.Conn>();
-	private static Pool p = new Pool();
-	private static Properties properties;
 	private static ScheduledExecutorService executor;
 	private static DomFactory factory;
 	
@@ -52,20 +51,14 @@ public class Pool {
 		TYPE_UPDATE
 	}
 	
-	public static Pool getInstance() {
-		return p;
-	}
-	
-	private Pool() {
+	protected Pool(DataSource source) {
 		try {
 			factory = DomFactory.getFactory();
-			properties = new Properties();
-			properties.load(Pool.class.getClassLoader().getResourceAsStream("resources.properties"));
-			maxConnNum = properties.getProperty("maxConnNum", "20");
-			DbDriver = properties.getProperty("DbDriver");
-			ConnUrl = properties.getProperty("ConnUrl");
-			DbUserName = properties.getProperty("DbUserName");
-			DbPassword = properties.getProperty("DbPassword");
+			maxConnNum = source.get("maxConnNum", "20");
+			DbDriver = source.get("driver");
+			ConnUrl = source.get("url");
+			DbUserName = source.get("username");
+			DbPassword = source.get("password");
 			Class.forName(DbDriver);
 			initPool();
 		}catch (IOException e) {

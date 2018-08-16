@@ -68,6 +68,8 @@ public class InitPoolSqls {
 				}
 				if ("resultMap".equals(n.getNodeName())) {
 					DomReader.readResultMap(n,factory);
+				}else if ("sql".equals(n.getNodeName())) {
+					DomReader.readPublicSql(n, factory);
 				}else {
 					DomReader.readSql(n,factory);
 				}

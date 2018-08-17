@@ -9,6 +9,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import ConnectionPool.ConnectionPool.mainpool.dom.resultmapmodel.ResultMap;
+import ConnectionPool.ConnectionPool.proxy.PoolProxy;
 import ConnectionPool.ConnectionPool.util.PoolUtil;
 
 public class DomFactory {
@@ -16,6 +17,7 @@ public class DomFactory {
 	private static ConcurrentHashMap<String, Map<String,Node>> namespaceDom;
 	private static ConcurrentHashMap<String, ResultMap> resultMaps;
 	private static ConcurrentHashMap<String, String> publicSqls;
+	private static PoolProxy proxys = PoolProxy.getProxyFactory();
 	
 	public void addDom(String namespace,String id,Node node) {
 		if (namespaceDom.containsKey(namespace)) {
@@ -26,6 +28,7 @@ public class DomFactory {
 			nodes.put(id, node);
 			namespaceDom.put(namespace, nodes);
 		}
+		proxys.newMapper(namespace);
 	}
 	
 	public void addResultMap(String id,ResultMap map) {

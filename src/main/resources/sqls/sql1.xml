@@ -12,7 +12,7 @@
 		select * from ${table}
 	</sql>
 	
-	<mapper namespace="connpool.test.selectmap">
+	<mapper namespace="ConnectionPool.ConnectionPool.test.TestMapper">
 	    <select id="getUser" parameterType="int" 
 	        resultType="ConnectionPool.ConnectionPool.test.vo">
 	        <include refid="select*" ><property name="table" value="tname" /></include>

@@ -97,8 +97,9 @@ public class Pool {
 	}
 	
 	public Object exec(String namespace,String id,Map<String, Object> args) throws InterruptedException, ClassNotFoundException, InstantiationException, IllegalAccessException {
-		Node node = factory.getNode(namespace, id);
 		long start = System.currentTimeMillis();
+		Node node = factory.getNode(namespace, id);
+		System.out.println("get node cost:"+(System.currentTimeMillis() - start));
 		Sqls sql = factory.getSqlFromNode(node,args);
 		System.out.println("get sql cost:"+(System.currentTimeMillis() - start));
 		if ("select".equals(node.getNodeName())) {

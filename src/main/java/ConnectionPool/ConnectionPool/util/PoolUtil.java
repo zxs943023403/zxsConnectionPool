@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.mysql.jdbc.StringUtils;
 
 import ConnectionPool.ConnectionPool.anno.Column;
 
@@ -21,18 +22,28 @@ public class PoolUtil {
 		long start = System.currentTimeMillis();
 		List list = new ArrayList<>();
 		if (results instanceof JSONArray) {
+			Class c = Class.forName(type);
+			Field[] fs = c.getDeclaredFields();
+			List<Field> annoFs = new ArrayList<Field>();
+			long cal = System.currentTimeMillis();
+			for (Field f : fs) {
+				Column column = f.getAnnotation(Column.class);
+				if (null != column) {
+					annoFs.add(f);
+				}
+			}
+			System.out.println("anno cost:"+(System.currentTimeMillis() - cal));
+			cal = System.currentTimeMillis();
 			for (int i = 0; i < ((JSONArray)results).size(); i++) {
 				JSONObject obj = (JSONObject) ((JSONArray) results).get(i);
-				Class c = Class.forName(type);
-				Field[] fs = c.getDeclaredFields();
-				for (Field f : fs) {
-					Column column = f.getAnnotation(Column.class);
-					if (null != column) {
-						obj.put(f.getName(), obj.get(column.value()));
-					}
+				for (Field f : annoFs) {
+					((JSONObject) ((JSONArray) results).get(i)).put(f.getName(), obj.get(f.getAnnotation(Column.class).value()));
 				}
-				list.add(obj.toJavaObject(c));
 			}
+			System.out.println("change json cost:"+(System.currentTimeMillis() - cal));
+			cal = System.currentTimeMillis();
+			list = ((JSONArray) results).toJavaList(c);
+			System.out.println("to json cost:"+(System.currentTimeMillis() - cal));
 		}
 		System.out.println("change type cost:"+(System.currentTimeMillis() - start));
 		return list.size()==1?list.get(0):list;
@@ -94,6 +105,9 @@ public class PoolUtil {
 	
 	private static boolean calNode(Node node,Map<String, Object> params) {
 		String msg = node.msg.toString().trim();
+		if (StringUtils.isNullOrEmpty(msg)) {
+			return true;
+		}
 		if ("and".equals(msg)) {
 			return calNode(node.left,params) && calNode(node.right,params);
 		}else if ("or".equals(msg)) {

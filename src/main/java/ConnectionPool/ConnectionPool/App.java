@@ -8,11 +8,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import ConnectionPool.ConnectionPool.mainpool.Pool;
 import ConnectionPool.ConnectionPool.mainpool.PoolConfig;
+import ConnectionPool.ConnectionPool.proxy.PoolProxy;
+import ConnectionPool.ConnectionPool.test.TestMapper;
 import ConnectionPool.ConnectionPool.test.vo;
 
 /**
@@ -20,8 +23,35 @@ import ConnectionPool.ConnectionPool.test.vo;
  *
  */
 public class App {
+	
+	private static PoolConfig config;
+	static {
+		config = PoolConfig.getConfig();
+	}
+	
     public static void main( String[] args ){
-    	chaxunsql();
+//    	chaxunsql();
+//    	xiugaisql();
+    	try {
+    		TestMapper mapper = PoolProxy.getProxyFactory().getProxy(TestMapper.class);
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("cGuid", "109230319479134175");
+			map.put("tname", "aos_rms_user");
+			long start = System.currentTimeMillis();
+    		System.out.println(mapper.getUser1(map));
+    		System.out.println("all cost:"+(System.currentTimeMillis() - start));
+		} catch (InstantiationException | IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
+    
+    public static void xiugaisql() {
+    	vo v = new vo();
+    	v.code="123";
+    	v.iden="456";
+    	v.id=null;
+    	System.out.println(JSON.toJSONString(v));
     }
     
     public static void chaxunsql() {
@@ -32,7 +62,7 @@ public class App {
 				map.put("cGuid", "109230319479134175");
 				map.put("tname", "aos_rms_user");
 				long start =System.currentTimeMillis();
-				results = PoolConfig.getConfig().poolExec("mysqlDB2","connpool.test.selectmap", "getUser1",map);
+				results = config.poolExec("mysqlDB2","connpool.test.selectmap", "getUser1",map);
 				System.out.println("all cost:"+(System.currentTimeMillis() - start));
 				if (results instanceof JSONArray) {
 					System.out.println("jsonobject?");

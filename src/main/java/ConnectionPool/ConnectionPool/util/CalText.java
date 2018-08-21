@@ -58,9 +58,7 @@ public class CalText {
 			}
 		}
 		todo = getHead(todo);
-		long start = System.currentTimeMillis();
 		System.out.println(calNode(todo, params));
-		System.out.println("cost:"+(System.currentTimeMillis() - start));
 	}
 	
 	public static Node getHead(Node head) {

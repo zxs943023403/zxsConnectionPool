@@ -12,7 +12,11 @@ public class PoolProxy {
 		return proxy;
 	}
 	
-	public <T> T getProxy(Class<T> c) throws InstantiationException, IllegalAccessException {
+	public static <T> T getMapper(Class<T> c) throws InstantiationException, IllegalAccessException {
+		return proxy.getProxy(c);
+	}
+	
+	private <T> T getProxy(Class<T> c) throws InstantiationException, IllegalAccessException {
 		InvocationHandler handler = new InvokeHandler(c);
 		Class[] cs = new Class[1];
 		cs[0] = c;

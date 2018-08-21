@@ -2,9 +2,15 @@ package ConnectionPool.ConnectionPool.util;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -18,34 +24,35 @@ public class PoolUtil {
         return pattern.matcher(str).matches(); 
 	}
 	
+	public static Map<String, String> readNodeAttrs(org.w3c.dom.Node node){
+		Map<String, String> attrs = new HashMap<String, String>();
+		NamedNodeMap nodeAttr = node.getAttributes();
+		for (int i = 0; i < nodeAttr.getLength(); i++) {
+			attrs.put(nodeAttr.item(i).getNodeName(), nodeAttr.item(i).getTextContent());
+		}
+		return attrs;
+	}
+	
 	public static Object changeResultType(Object results,String type) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-		long start = System.currentTimeMillis();
 		List list = new ArrayList<>();
 		if (results instanceof JSONArray) {
 			Class c = Class.forName(type);
 			Field[] fs = c.getDeclaredFields();
 			List<Field> annoFs = new ArrayList<Field>();
-			long cal = System.currentTimeMillis();
 			for (Field f : fs) {
 				Column column = f.getAnnotation(Column.class);
 				if (null != column) {
 					annoFs.add(f);
 				}
 			}
-			System.out.println("anno cost:"+(System.currentTimeMillis() - cal));
-			cal = System.currentTimeMillis();
 			for (int i = 0; i < ((JSONArray)results).size(); i++) {
 				JSONObject obj = (JSONObject) ((JSONArray) results).get(i);
 				for (Field f : annoFs) {
 					((JSONObject) ((JSONArray) results).get(i)).put(f.getName(), obj.get(f.getAnnotation(Column.class).value()));
 				}
 			}
-			System.out.println("change json cost:"+(System.currentTimeMillis() - cal));
-			cal = System.currentTimeMillis();
 			list = ((JSONArray) results).toJavaList(c);
-			System.out.println("to json cost:"+(System.currentTimeMillis() - cal));
 		}
-		System.out.println("change type cost:"+(System.currentTimeMillis() - start));
 		return list.size()==1?list.get(0):list;
 	}
 	
@@ -158,6 +165,35 @@ public class PoolUtil {
 			}
 		}
 		return false;
+	}
+	
+	public static String replaceAttr(String context,String pattern,Map properties) {
+		Properties ps = new Properties();
+		ps.putAll(properties);
+		return replaceAttr(context, pattern, ps);
+	}
+	
+	public static String replaceAttr(String context,String pattern,Properties properties) {
+		Pattern p = Pattern.compile(pattern);
+		StringBuffer sql = new StringBuffer(context);
+		if (hasParams(context, pattern) && null != properties ) {
+			Matcher m = p.matcher(sql);
+			List<String> ls = new ArrayList<String>();
+			while (m.find()) {
+				ls.add(m.group());
+			}
+			for (String string : ls) {
+				sql = new StringBuffer(sql.toString().replaceAll("\\$\\{" + string + "\\}", properties.get(string)+""));
+			}
+		}
+		return sql.toString();
+	}
+
+	public static boolean hasParams(String context, String pattern) {
+		if (context == null || "".equals(context)) {
+			return false;
+		}
+		return Pattern.compile(pattern).matcher(context).find();
 	}
 	
 	private static class Node{

@@ -80,16 +80,12 @@ public class PoolConfig {
 	
 	public Object poolExec(String datasourceid,String namespace,String id,Map<String, Object> args) throws ClassNotFoundException, InstantiationException, IllegalAccessException, InterruptedException {
 		Pool p = null;
-		long start = System.currentTimeMillis();
 		if (StringUtils.isNullOrEmpty(datasourceid)) {
 			p = signlePool;
 		}else {
 			p = pools.get(datasourceid);
 		}
-		System.out.println("get pool cost:"+(System.currentTimeMillis() - start));
-		start = System.currentTimeMillis();
 		Object obj = p.exec(namespace, id, args);
-		System.out.println("get result cost:"+(System.currentTimeMillis() - start));
 		return obj;
 	}
 	

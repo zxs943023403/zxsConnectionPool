@@ -33,7 +33,7 @@ public class App {
 //    	chaxunsql();
 //    	xiugaisql();
     	try {
-    		TestMapper mapper = PoolProxy.getProxyFactory().getProxy(TestMapper.class);
+    		TestMapper mapper = PoolProxy.getMapper(TestMapper.class);
 			Map<String, Object> map = new HashMap<String, Object>();
 			map.put("cGuid", "109230319479134175");
 			map.put("tname", "aos_rms_user");

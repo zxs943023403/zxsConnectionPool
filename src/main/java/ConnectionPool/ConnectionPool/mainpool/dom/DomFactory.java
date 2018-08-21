@@ -8,6 +8,8 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import ConnectionPool.ConnectionPool.mainpool.dom.models.MainModel;
+import ConnectionPool.ConnectionPool.mainpool.dom.models.Sqls;
 import ConnectionPool.ConnectionPool.mainpool.dom.resultmapmodel.ResultMap;
 import ConnectionPool.ConnectionPool.proxy.PoolProxy;
 import ConnectionPool.ConnectionPool.util.PoolUtil;
@@ -17,7 +19,9 @@ public class DomFactory {
 	private static ConcurrentHashMap<String, Map<String,Node>> namespaceDom;
 	private static ConcurrentHashMap<String, ResultMap> resultMaps;
 	private static ConcurrentHashMap<String, String> publicSqls;
+	private static ConcurrentHashMap<String, MainModel> domMap;
 	private static PoolProxy proxys = PoolProxy.getProxyFactory();
+	private static final String MAIN_MODEL_CLASS = "ConnectionPool.ConnectionPool.mainpool.dom.models.MainModel";
 	
 	public void addDom(String namespace,String id,Node node) {
 		if (namespaceDom.containsKey(namespace)) {
@@ -50,37 +54,62 @@ public class DomFactory {
 		return publicSqls.get(id);
 	}
 	
-	public Sqls getSqlFromNode(Node n,Map<String, Object> args) {
-		NamedNodeMap attrs = n.getAttributes();
-		Sqls sqls = new Sqls();
-		for (int i = 0; i < attrs.getLength(); i++) {
-			Node attr = attrs.item(i);
-			if ("resultType".equals(attr.getNodeName())) {
-				sqls.resultType = attr.getTextContent();
+	public void initSqlDom(Node doms) {
+		try {
+			NodeList dom = doms.getChildNodes();
+			for (int i = 0; i < dom.getLength(); i++) {
+				Node domNode = dom.item(i);
+				if (domNode.getNodeType() != Node.ELEMENT_NODE) {
+					continue;
+				}
+				Map<String, String> attr = PoolUtil.readNodeAttrs(domNode);
+				Class clazz = Class.forName(attr.get("class"));
+				String className = clazz.getName();
+				if (!MAIN_MODEL_CLASS.equals(clazz.getSuperclass().getName())) {
+					throw new RuntimeException("class:"+className+" must extend "+MAIN_MODEL_CLASS);
+				}
+				MainModel mm = (MainModel) clazz.newInstance();
+				mm.clazz = clazz;
+				mm.domParam = domNode;
+				mm.factory = this;
+				domMap.put(attr.get("id"), mm);
 			}
-			if ("parameterType".equals(attr.getNodeName())) {
-				sqls.paramType = attr.getTextContent();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public Object readDom(String id,Node node,Map<String, Object> args) {
+		MainModel m1 = domMap.get(id);
+		MainModel mm = m1.clone();
+		Node dom = mm.domParam;
+		mm.node = node;
+		mm.args = args;
+		NodeList params = dom.getChildNodes();
+		for (int i = 0; i < params.getLength(); i++) {
+			Node param = params.item(i);
+			if (param.getNodeType() != Node.ELEMENT_NODE) {
+				continue;
+			}
+			Map<String, String> attr = PoolUtil.readNodeAttrs(param);
+			attr.put("value",null == args.get(attr.get("key"))?attr.get("value"):args.get(attr.get("key"))+"");
+			try {
+				mm.getClass().getField(attr.get("key")).set(mm, attr.get("value"));
+			} catch (IllegalArgumentException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NoSuchFieldException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (SecurityException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
-		NodeList childern = n.getChildNodes();
-		String sql = "";
-		for (int i = 0; i < childern.getLength(); i++) {
-			Node child = childern.item(i);
-			if (child.getNodeType() == Node.TEXT_NODE) {
-				sql += child.getTextContent();
-			}
-			if (child.getNodeType() == Node.ELEMENT_NODE) {
-				if ("if".equals(child.getNodeName())) {
-					sql = DomReader.readNodeTest(child, sql,args);
-				}
-				if ("include".equals(child.getNodeName())) {
-					sql = DomReader.readIncludeSql(child, sql, args,factory);
-				}
-			}
-		}
-		sqls.sql = sql;
-		sqls.sqlParams(args);
-		return sqls;
+		return mm.read();
 	}
 	
 	private static DomFactory factory = new DomFactory();
@@ -93,6 +122,7 @@ public class DomFactory {
 		namespaceDom = new ConcurrentHashMap<String, Map<String,Node>>();
 		resultMaps = new ConcurrentHashMap<String, ResultMap>();
 		publicSqls = new ConcurrentHashMap<String,String>();
+		domMap = new ConcurrentHashMap<String, MainModel>();
 	}
 	
 }

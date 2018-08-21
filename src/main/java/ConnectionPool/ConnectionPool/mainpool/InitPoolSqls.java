@@ -22,7 +22,7 @@ import ConnectionPool.ConnectionPool.mainpool.dom.resultmapmodel.ResultMapResult
 
 public class InitPoolSqls {
 	private String sqlPath;
-	private static DomFactory factory;
+	private DomFactory factory;
 	private static DocumentBuilderFactory documentFactory ;
 	private static DocumentBuilder builder ;
 	
@@ -40,6 +40,9 @@ public class InitPoolSqls {
 		this.factory = factory;
 		this.sqlPath = sqlPath;
 		Enumeration<URL> e = this.getClass().getClassLoader().getResources(sqlPath);
+		Document document = builder.parse(this.getClass().getClassLoader().getResourceAsStream("doms.xml"));
+		Node doms = document.getChildNodes().item(0);
+		factory.initSqlDom(doms);
 		while (e.hasMoreElements()) {
 			URL url = (URL) e.nextElement();
 			readFile(new File(url.getFile()));
@@ -66,13 +69,7 @@ public class InitPoolSqls {
 				if (n.getNodeType() != Node.ELEMENT_NODE) {
 					continue;
 				}
-				if ("resultMap".equals(n.getNodeName())) {
-					DomReader.readResultMap(n,factory);
-				}else if ("sql".equals(n.getNodeName())) {
-					DomReader.readPublicSql(n, factory);
-				}else {
-					DomReader.readSql(n,factory);
-				}
+				factory.readDom(n.getNodeName(), n, null);
 			}
 		}
 	}

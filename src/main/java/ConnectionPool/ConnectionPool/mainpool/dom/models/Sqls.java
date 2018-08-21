@@ -1,4 +1,4 @@
-package ConnectionPool.ConnectionPool.mainpool.dom;
+package ConnectionPool.ConnectionPool.mainpool.dom.models;
 
 import java.util.ArrayList;
 import java.util.HashMap;

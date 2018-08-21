@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<doms>
+	<dom id="select" class="ConnectionPool.ConnectionPool.mainpool.dom.models.SelectModel" >
+	</dom>
+	<dom id="update" class="ConnectionPool.ConnectionPool.mainpool.dom.models.SelectModel" >
+	</dom>
+	<dom id="insert" class="ConnectionPool.ConnectionPool.mainpool.dom.models.SelectModel" >
+	</dom>
+	<dom id="delete" class="ConnectionPool.ConnectionPool.mainpool.dom.models.SelectModel" >
+	</dom>
+	<dom id="resultMap" class="ConnectionPool.ConnectionPool.mainpool.dom.models.ResultMapModel" >
+	</dom>
+	<dom id="sql" class="ConnectionPool.ConnectionPool.mainpool.dom.models.PublicSqlModel" ></dom>
+	<dom id="mapper" class="ConnectionPool.ConnectionPool.mainpool.dom.models.MapperModel" ></dom>
+	<dom id="if" class="ConnectionPool.ConnectionPool.mainpool.dom.models.IfModel" >
+		<param key="sql" value="sql" ></param>
+	</dom>
+	<dom id="include" class="ConnectionPool.ConnectionPool.mainpool.dom.models.IncludeModel" >
+		<param key="sql" value="sql" ></param>
+	</dom>
+</doms>
+

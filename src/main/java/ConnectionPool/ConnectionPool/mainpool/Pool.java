@@ -31,7 +31,8 @@ import com.alibaba.fastjson.JSONObject;
 
 import ConnectionPool.ConnectionPool.mainpool.dom.DataSource;
 import ConnectionPool.ConnectionPool.mainpool.dom.DomFactory;
-import ConnectionPool.ConnectionPool.mainpool.dom.Sqls;
+import ConnectionPool.ConnectionPool.mainpool.dom.models.SelectModel;
+import ConnectionPool.ConnectionPool.mainpool.dom.models.Sqls;
 import ConnectionPool.ConnectionPool.util.PoolUtil;
 
 public class Pool {
@@ -99,17 +100,11 @@ public class Pool {
 	public Object exec(String namespace,String id,Map<String, Object> args) throws InterruptedException, ClassNotFoundException, InstantiationException, IllegalAccessException {
 		long start = System.currentTimeMillis();
 		Node node = factory.getNode(namespace, id);
-		System.out.println("get node cost:"+(System.currentTimeMillis() - start));
-		Sqls sql = factory.getSqlFromNode(node,args);
-		System.out.println("get sql cost:"+(System.currentTimeMillis() - start));
-		if ("select".equals(node.getNodeName())) {
-			start = System.currentTimeMillis();
-			Object result = exec(sql.sql, EXEC_TYPE.TYPE_QUERY, sql.args);
-			System.out.println("query cost:"+(System.currentTimeMillis() - start));
-			return PoolUtil.changeResultType(result, sql.resultType);
-		}else {
-			return exec(sql.sql, EXEC_TYPE.TYPE_UPDATE, args);
-		}
+		Sqls sql = (Sqls) factory.readDom(node.getNodeName(),node,args);
+		start = System.currentTimeMillis();
+		Object result = exec(sql.sql, "select".equals(node.getNodeName())?EXEC_TYPE.TYPE_QUERY:EXEC_TYPE.TYPE_UPDATE, sql.args);
+		System.out.println("query cost:"+(System.currentTimeMillis() - start));
+		return PoolUtil.changeResultType(result, sql.resultType);
 	}
 	
 	public Object exec(String sql,EXEC_TYPE type,Object ...args) throws InterruptedException {

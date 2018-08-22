@@ -1,4 +1,4 @@
-package ConnectionPool.ConnectionPool;
+package ConnectionPool.ConnectionPool.test;
 
 import java.util.HashMap;
 import java.util.List;
@@ -8,7 +8,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import com.alibaba.fastjson.JSON;
+import org.junit.Before;
+import org.junit.Test;
+
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
@@ -18,74 +20,19 @@ import ConnectionPool.ConnectionPool.proxy.PoolProxy;
 import ConnectionPool.ConnectionPool.test.TestMapper;
 import ConnectionPool.ConnectionPool.test.vo;
 
-/**
- * Hello world!
- *
- */
-public class App {
+public class TestPool {
 	
 	private static PoolConfig config;
-	static {
+	
+	@Before
+	private void initTest() {
+		System.out.println("start test");
 		config = PoolConfig.getConfig();
 	}
 	
-    public static void main( String[] args ){
-//    	chaxunsql();
-//    	xiugaisql();
-    	chaxunmapper2with10000();
-    }
-    
-    public static void xiugaisql() {
-    	vo v = new vo();
-    	v.code="123";
-    	v.iden="456";
-    	v.id=null;
-    	System.out.println(JSON.toJSONString(v));
-    }
-    
-    public static void chaxunmapper2with10000() {
-    	try {
-			Thread.sleep(500);
-		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-    	ScheduledExecutorService pool = Executors.newScheduledThreadPool(50);
-    	for (int i = 0; i < 10000; i++) {
-    		final int in = i;
-    		pool.schedule(()->{
-    			try {
-    				TestMapper mapper = PoolProxy.getMapper(TestMapper.class);
-    				Map<String, Object> map = new HashMap<String, Object>();
-    				map.put("cGuid", "109230319479134175");
-    				map.put("tname", "aos_rms_user");
-    				long start = System.currentTimeMillis();
-    				int ran = new Random().nextInt();
-    				switch (ran%3) {
-					case 0:
-						System.out.println(config.poolExec("mysqlDB2","ConnectionPool.ConnectionPool.test.TestMapper", "getUser1",map));
-						break;
-					case 1:
-						System.out.println(mapper.getUser1(map));
-						break;
-					case 2:
-						System.out.println(mapper.getUser2(map));
-						break;
-					default:
-						break;
-					}
-    	    		System.out.println(in+"all cost:"+(System.currentTimeMillis() - start));
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-    		}, 0, TimeUnit.MILLISECONDS);
-		}
-    	pool.shutdown();
-    }
-    
-    public static void chaxunmapper2() {
-    	try {
+	@Test
+	public void testSql() {
+		try {
     		TestMapper mapper = PoolProxy.getMapper(TestMapper.class);
 			Map<String, Object> map = new HashMap<String, Object>();
 			map.put("cGuid", "109230319479134175");
@@ -97,9 +44,9 @@ public class App {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-    }
-    
-    public static void chaxunsql() {
+	}
+	
+	public static void chaxunsql() {
     	try {
 			Object results;
 			try {
@@ -168,5 +115,6 @@ public class App {
     	pool.shutdown();
     	Pool.stop();
     }
-    
+	
+	
 }

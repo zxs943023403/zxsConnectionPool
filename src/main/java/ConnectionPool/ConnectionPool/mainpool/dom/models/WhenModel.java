@@ -1,25 +1,20 @@
 package ConnectionPool.ConnectionPool.mainpool.dom.models;
 
-import org.w3c.dom.NamedNodeMap;
+import java.util.Map;
+
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import ConnectionPool.ConnectionPool.util.PoolUtil;
 
-public class IfModel extends MainModel {
+public class WhenModel extends MainModel {
 
 	public String sql;
 	
 	@Override
 	public Object read() {
-		NamedNodeMap childAttr = node.getAttributes();
-		String test = "";
-		for (int j = 0; j < childAttr.getLength(); j++) {
-			if ("test".equals(childAttr.item(j).getNodeName())) {
-				test = childAttr.item(j).getTextContent();
-				break;
-			}
-		}
+		Map<String, String> attr = PoolUtil.readNodeAttrs(node);
+		String test = attr.get("test");
 		if (PoolUtil.Cal(test, args)) {
 			NodeList childern = node.getChildNodes();
 			for (int i = 0; i < childern.getLength(); i++) {

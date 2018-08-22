@@ -18,5 +18,15 @@
 	<dom id="include" class="ConnectionPool.ConnectionPool.mainpool.dom.models.IncludeModel" >
 		<param key="sql" value="sql" ></param>
 	</dom>
+	<dom id="choose" class="ConnectionPool.ConnectionPool.mainpool.dom.models.ChooseModel" >
+		<param key="sql" value="sql" ></param>
+	</dom>
+	<dom id="when" class="ConnectionPool.ConnectionPool.mainpool.dom.models.WhenModel" >
+		<param key="sql" value="sql" ></param>
+	</dom>
+	<dom id="otherwise" class="ConnectionPool.ConnectionPool.mainpool.dom.models.OtherwiseModel" >
+		<param key="sql" value="sql" ></param>
+		<param key="oldsql" value="oldsql" ></param>
+	</dom>
 </doms>
 

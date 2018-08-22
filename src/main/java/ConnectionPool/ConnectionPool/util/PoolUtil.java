@@ -26,8 +26,15 @@ public class PoolUtil {
 	
 	public static Map<String, String> readNodeAttrs(org.w3c.dom.Node node){
 		Map<String, String> attrs = new HashMap<String, String>();
+		if (node.getNodeType() != org.w3c.dom.Node.ELEMENT_NODE) {
+			return null;
+		}
 		NamedNodeMap nodeAttr = node.getAttributes();
 		for (int i = 0; i < nodeAttr.getLength(); i++) {
+			org.w3c.dom.Node attr = nodeAttr.item(i);
+			if (null == attr) {
+				System.out.println("null node attr at"+node.getNodeName()+":i="+i);
+			}
 			attrs.put(nodeAttr.item(i).getNodeName(), nodeAttr.item(i).getTextContent());
 		}
 		return attrs;

@@ -21,12 +21,30 @@
 		         where id=#{id}
 	        </if>
 	    </select>
+	    
 	    <select id="getUser1" parameterType="int" 
 	        resultType="ConnectionPool.ConnectionPool.test.vo">
 	        <include refid="select*" ><property name="table" value="tname" /></include>
 	        <if test="cGuid > 10" >
 		         where cGuid=#{cGuid}
 	        </if>
+	    </select>
+	    
+	    <select id="getUser2" parameterType="int" 
+	        resultType="ConnectionPool.ConnectionPool.test.vo">
+	        <include refid="select*" ><property name="table" value="tname" /></include>
+		         where cGuid=#{cGuid}
+	        <choose>
+	        	<when test="cPwdType == 1" >
+	        		and cPwdType = 1
+	        	</when>
+	        	<when test="cUserType == udp" >
+	        		and cUserType = 'udp'
+	        	</when>
+	        	<otherwise>
+	        		and 1=1
+	        	</otherwise>
+	        </choose>
 	    </select>
 	</mapper>
 </configuration>

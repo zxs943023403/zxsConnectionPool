@@ -19,7 +19,7 @@ public class DomFactory {
 	private static ConcurrentHashMap<String, Map<String,Node>> namespaceDom;
 	private static ConcurrentHashMap<String, ResultMap> resultMaps;
 	private static ConcurrentHashMap<String, String> publicSqls;
-	private static ConcurrentHashMap<String, MainModel> domMap;
+	private static ConcurrentHashMap<String, Node> domMap;
 	private static PoolProxy proxys = PoolProxy.getProxyFactory();
 	private static final String MAIN_MODEL_CLASS = "ConnectionPool.ConnectionPool.mainpool.dom.models.MainModel";
 	
@@ -72,16 +72,37 @@ public class DomFactory {
 				mm.clazz = clazz;
 				mm.domParam = domNode;
 				mm.factory = this;
-				domMap.put(attr.get("id"), mm);
+				domMap.put(attr.get("id"), domNode);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
-	public Object readDom(String id,Node node,Map<String, Object> args) {
-		MainModel m1 = domMap.get(id);
-		MainModel mm = m1.clone();
+	public synchronized Object readDom(String id,Node node,Map<String, Object> args) {
+		Node domNode = domMap.get(id);
+		Map<String, String> attrNode = PoolUtil.readNodeAttrs(domNode);
+		MainModel mm = null;
+		Class clazz = null;
+		try {
+			clazz = Class.forName(attrNode.get("class"));
+			mm = (MainModel) clazz.newInstance();
+		} catch (InstantiationException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IllegalAccessException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if (null == mm) {
+			throw new RuntimeException(id+" 标签暂未配置！");
+		}
+		mm.clazz = clazz;
+		mm.domParam = domNode;
+		mm.factory = this;
 		Node dom = mm.domParam;
 		mm.node = node;
 		mm.args = args;
@@ -122,7 +143,7 @@ public class DomFactory {
 		namespaceDom = new ConcurrentHashMap<String, Map<String,Node>>();
 		resultMaps = new ConcurrentHashMap<String, ResultMap>();
 		publicSqls = new ConcurrentHashMap<String,String>();
-		domMap = new ConcurrentHashMap<String, MainModel>();
+		domMap = new ConcurrentHashMap<String, Node>();
 	}
 	
 }

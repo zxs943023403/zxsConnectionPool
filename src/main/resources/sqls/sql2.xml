@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration>
+	<resultMap id="authorResult" type="Author">
+	  <id property="id" column="author_id"/>
+	  <result property="username" column="author_username"/>
+	  <result property="password" column="author_password"/>
+	  <result property="email" column="author_email"/>
+	  <result property="bio" column="author_bio"/>
+	</resultMap>
+	
+	<sql id="insertin" >
+		insert into ${table}
+	</sql>
+	
+	<mapper namespace="ConnectionPool.ConnectionPool.test.TestTableMapper">
+	    
+	    <insert id="insert" >
+	    	 insert into test_table
+	    	 (primarykey,txt1,txt2,in1,in2)
+	    	 	values
+	    	 (#{id},#{txt1},#{txt2},#{in1},#{in2})
+	    </insert>
+	    
+	    <update id="update" >
+	    	update test_table
+	    	<set split="," >
+	    		<if test="txt1 != null" >txt1 = #{txt1}</if>
+	    		<if test="txt2 != null" >txt2 = #{txt2}</if>
+	    		<if test="in1 != null" >in1 = #{in1}</if>
+	    		<if test="in2 != null" >in2 = #{in2}</if>
+	    	</set>
+	    	<where>
+	    		<if test="id != null" >primarykey = #{id}</if>
+	    	</where>
+	    </update>
+	    
+	    <update id="updates" >
+	    	update test_table
+	    	<set split="," >
+	    		<if test="vo.txt1 != null" >txt1 = #{vo.txt1}</if>
+	    		<if test="vo.txt2 != null" >txt2 = #{vo.txt2}</if>
+	    		<if test="vo.in1 != null" >in1 = #{vo.in1}</if>
+	    		<if test="vo.in2 != null" >in2 = #{vo.in2}</if>
+	    	</set>
+	    	where primarykey in 
+	    	<foreach item="item" index="index" collection="list" open="(" separator="," close=")" >
+	    		${item}
+	    	</foreach>
+	    </update>
+	    
+	</mapper>
+</configuration>

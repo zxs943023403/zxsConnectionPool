@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.mysql.jdbc.StringUtils;
@@ -60,7 +61,21 @@ public class PoolUtil {
 			}
 			list = ((JSONArray) results).toJavaList(c);
 		}
-		return list.size()==1?list.get(0):list;
+		return list;
+	}
+	
+	public static <T> T changeType(Object result ,Class T,String type) {
+		String jsonstr = JSON.toJSONString(result);
+		if (T == List.class && !(result instanceof List)) {
+			JSONArray arr = new JSONArray();
+			arr.add(JSONObject.parse(jsonstr));
+			jsonstr = arr.toJSONString();
+		}
+		return (T) JSON.parseObject(jsonstr, T);
+	}
+	
+	public static String trimStr(String str) {
+		return str.replaceAll("[ \t\r\n]+", " ").trim();
 	}
 	
 	private static String[] calData = new String[] {" != "," == "," >= "," <= "," > "," < "};
@@ -132,6 +147,12 @@ public class PoolUtil {
 			}
 			String[] txts = msg.split(" ");
 			Object p = params.get(txts[0]);
+			if (txts.length != 3) {
+				if ("true".equals(p)) {
+					return true;
+				}
+				return false;
+			}
 			//替换为BSH？？
 			if ("null".equals(txts[2])) {
 				return "!=".equals(txts[1])?(null != p):(null == p);

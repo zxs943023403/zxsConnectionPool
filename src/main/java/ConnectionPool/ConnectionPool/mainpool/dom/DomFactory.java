@@ -80,6 +80,9 @@ public class DomFactory {
 	}
 	
 	public synchronized Object readDom(String id,Node node,Map<String, Object> args) {
+		if (node.getNodeType() != Node.ELEMENT_NODE) {
+			return null;
+		}
 		Node domNode = domMap.get(id);
 		Map<String, String> attrNode = PoolUtil.readNodeAttrs(domNode);
 		MainModel mm = null;

@@ -34,7 +34,7 @@ public class SelectModel extends MainModel {
 			}
 			if (child.getNodeType() == Node.ELEMENT_NODE) {
 				args.put("sql", sql);
-				sql = (String) factory.readDom(child.getNodeName(), child, args);
+				sql += (String) factory.readDom(child.getNodeName(), child, args);
 			}
 		}
 		sqls.sql = sql;

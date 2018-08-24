@@ -46,5 +46,22 @@
 	        	</otherwise>
 	        </choose>
 	    </select>
+	    
+	    <select id="getUser3" parameterType="int" 
+	        resultType="ConnectionPool.ConnectionPool.test.vo">
+	        <include refid="select*" ><property name="table" value="tname" /></include>
+		    <where >
+		    	<if test="cGuid != null" >
+		    		and cGuid=#{cGuid}
+		    	</if>
+		    	<if test="cPwdType == 1" >
+		    		and cPwdType = 1
+		    	</if>
+		    	<if test="cUserType == udp" >
+		    		and cUserType = 'udp'
+		    	</if>
+		    </where>
+	    </select>
+	    
 	</mapper>
 </configuration>

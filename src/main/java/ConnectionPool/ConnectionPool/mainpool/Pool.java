@@ -34,6 +34,7 @@ import ConnectionPool.ConnectionPool.mainpool.dom.DomFactory;
 import ConnectionPool.ConnectionPool.mainpool.dom.models.SelectModel;
 import ConnectionPool.ConnectionPool.mainpool.dom.models.Sqls;
 import ConnectionPool.ConnectionPool.util.PoolUtil;
+import ConnectionPool.ConnectionPool.util.PrintLog;
 
 public class Pool {
 	
@@ -209,6 +210,7 @@ public class Pool {
 		
 		public synchronized Object exec(String sql,EXEC_TYPE type,Object ...args) throws SQLException {
 			Object result = null;
+			PrintLog.log("sql:"+sql);
 			switch (type) {
 			case TYPE_UPDATE:
 				result = update(sql,args);
@@ -232,8 +234,10 @@ public class Pool {
 		
 		private synchronized Object query(String sql,Object ...args) throws SQLException {
 			PreparedStatement pst = connection.prepareStatement(sql);
-			for (int i = 0; i < args.length; i++) {
-				pst.setObject(i+1, args[i]);
+			if (null != args) {
+				for (int i = 0; i < args.length; i++) {
+					pst.setObject(i+1, args[i]);
+				}
 			}
 			ResultSet set = pst.executeQuery();
 			JSONArray array = new JSONArray();

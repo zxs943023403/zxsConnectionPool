@@ -20,19 +20,20 @@ public class IfModel extends MainModel {
 				break;
 			}
 		}
+		String result = "";
 		if (PoolUtil.Cal(test, args)) {
 			NodeList childern = node.getChildNodes();
 			for (int i = 0; i < childern.getLength(); i++) {
 				Node child = childern.item(i);
 				if (child.getNodeType() == Node.TEXT_NODE) {
-					sql += child.getTextContent();
+					result += child.getTextContent();
 				}
 				if (child.getNodeType() == Node.ELEMENT_NODE) {
-					sql = (String) factory.readDom(child.getNodeName(), child, args);
+					result += (String) factory.readDom(child.getNodeName(), child, args);
 				}
 			}
 		}
-		return sql;
+		return result;
 	}
 
 }

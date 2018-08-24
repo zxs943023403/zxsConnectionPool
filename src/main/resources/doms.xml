@@ -28,5 +28,8 @@
 		<param key="sql" value="sql" ></param>
 		<param key="oldsql" value="oldsql" ></param>
 	</dom>
+	<dom id="where" class="ConnectionPool.ConnectionPool.mainpool.dom.models.WhereModel" ></dom>
+	<dom id="set" class="ConnectionPool.ConnectionPool.mainpool.dom.models.SetModel" ></dom>
+	<dom id="foreach" class="ConnectionPool.ConnectionPool.mainpool.dom.models.ForeachModel" ></dom>
 </doms>
 

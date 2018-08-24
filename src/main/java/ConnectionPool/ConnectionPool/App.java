@@ -1,9 +1,11 @@
 package ConnectionPool.ConnectionPool;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -16,6 +18,8 @@ import ConnectionPool.ConnectionPool.mainpool.Pool;
 import ConnectionPool.ConnectionPool.mainpool.PoolConfig;
 import ConnectionPool.ConnectionPool.proxy.PoolProxy;
 import ConnectionPool.ConnectionPool.test.TestMapper;
+import ConnectionPool.ConnectionPool.test.TestTable;
+import ConnectionPool.ConnectionPool.test.TestTableMapper;
 import ConnectionPool.ConnectionPool.test.vo;
 
 /**
@@ -33,6 +37,74 @@ public class App {
 //    	chaxunsql();
 //    	xiugaisql();
     	chaxunmapper2with10000();
+//    	updatesmap();
+    }
+    
+    public static void updatesmap() {
+    	try {
+    		TestTableMapper mapper = PoolProxy.getMapper(TestTableMapper.class);
+    		TestTable vo = new TestTable();
+    		vo.id = "2418d1bd-9ea7-44aa-8298-7d27558e82bd";
+    		vo.txt1 = "asdas";
+    		vo.txt2 = "gthtr";
+    		vo.in1 = 432;
+    		vo.in2 = 54;
+    		List list = new ArrayList();
+    		list.add("2418d1bd-9ea7-44aa-8298-7d27558e82bd");
+    		list.add("3f87497e-c6bf-4702-81f1-4c9e6e92cc99");
+    		list.add("43a3056b-4ee8-415e-8d2a-dcb941aa0435");
+    		Map<String, Object> args = new HashMap<String, Object>();
+    		args.put("vo", vo);
+    		args.put("list", list);
+    		long start = System.currentTimeMillis();
+    		mapper.updates(args);
+    		System.out.println("all cost:"+(System.currentTimeMillis() - start));
+    	} catch (InstantiationException | IllegalAccessException e) {
+    		// TODO Auto-generated catch block
+    		e.printStackTrace();
+    	}
+    }
+    
+    public static void updatemap() {
+    	try {
+    		TestTableMapper mapper = PoolProxy.getMapper(TestTableMapper.class);
+			TestTable vo = new TestTable();
+			vo.id = "2418d1bd-9ea7-44aa-8298-7d27558e82bd";
+			vo.txt1 = "votxt1";
+			vo.txt2 = "votxt2";
+			vo.in1 = 11;
+			vo.in2 = 22;
+			long start = System.currentTimeMillis();
+			mapper.update(vo);
+    		System.out.println("all cost:"+(System.currentTimeMillis() - start));
+		} catch (InstantiationException | IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
+    
+    public static void insert(){
+    	try {
+    		String sql = "insert into test_table(primarykey,txt1,txt2,in1,in2) values(?,?,?,?,?)";
+    		Object[] args = new Object[5];
+    		args[0] = UUID.randomUUID().toString();
+    		args[1] = "t1";
+    		args[2] = "t2";
+    		args[3] = 1;
+    		args[4] = 2;
+			Object results = PoolConfig.getConfig().poolExec(sql,Pool.EXEC_TYPE.TYPE_UPDATE,args);
+			if (results instanceof JSONArray) {
+				for (int i = 0; i < ((JSONArray)results).size(); i++) {
+					JSONObject obj = (JSONObject) ((JSONArray) results).get(i);
+					System.out.println(obj);
+					vo v = obj.toJavaObject(vo.class);
+					System.out.println(v.toString());
+				}
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
     
     public static void xiugaisql() {
@@ -51,7 +123,7 @@ public class App {
 			e1.printStackTrace();
 		}
     	ScheduledExecutorService pool = Executors.newScheduledThreadPool(50);
-    	for (int i = 0; i < 10000; i++) {
+    	for (int i = 0; i < 1; i++) {
     		final int in = i;
     		pool.schedule(()->{
     			try {
@@ -61,7 +133,8 @@ public class App {
     				map.put("tname", "aos_rms_user");
     				long start = System.currentTimeMillis();
     				int ran = new Random().nextInt();
-    				switch (ran%3) {
+//    				int ran = 1;
+    				switch (ran%4) {
 					case 0:
 						System.out.println(config.poolExec("mysqlDB2","ConnectionPool.ConnectionPool.test.TestMapper", "getUser1",map));
 						break;
@@ -70,6 +143,14 @@ public class App {
 						break;
 					case 2:
 						System.out.println(mapper.getUser2(map));
+						break;
+					case 3:
+						map.remove("cGuid");
+						map.put("cPwdType", "1");
+						List list = mapper.getUser3(map);
+						for (Object object : list) {
+							System.out.println(object);
+						}
 						break;
 					default:
 						break;

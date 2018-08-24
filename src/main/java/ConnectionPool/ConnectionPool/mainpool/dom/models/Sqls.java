@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import ConnectionPool.ConnectionPool.util.PoolUtil;
+
 public class Sqls {
 	public String sql;
 	public String resultType;
@@ -16,14 +18,20 @@ public class Sqls {
 	public void sqlParams(Map<String, Object> map) {
 		sql = changeSqlParams(sql, map);
 		sql = changeSqlStrs(sql, map);
-		System.out.println(sql);
+		sql = PoolUtil.trimStr(sql);
 	}
 	
 	public static void main(String[] args) {
-		String txt = "asd${aa.bb}123";
-		Map<String, Object> map = new HashMap<>();
-		map.put("aa.bb", "123");
-		System.out.println(new Sqls().changeSqlStrs(txt, map));
+		String aa = "\r\n" + 
+				"	        \r\n" + 
+				"		select * from aos_rms_user\r\n" + 
+				"	\r\n" + 
+				"		         where cGuid= ? \r\n" + 
+				"	        \r\n" + 
+				"	        		and 1=1\r\n" + 
+				"	        	\r\n" + 
+				"	    ";
+		System.out.println(aa.replaceAll("[ \t\r\n]+", " "));
 	}
 	
 	//大括号正则表达式#{xx}
@@ -67,7 +75,11 @@ public class Sqls {
 				ls.add(m.group());
 			}
 			for (String string : ls) {
-				sql = new StringBuffer(sql.toString().replaceAll("\\$\\{" + string + "\\}", values.get(string)+""));
+				Object o = values.get(string);
+//				if (!PoolUtil.isNumber(o+"")) {
+//					o = "'"+o+"'";
+//				}
+				sql = new StringBuffer(sql.toString().replaceAll("\\$\\{" + string + "\\}", o+""));
 			}
 		}
 		return sql.toString();

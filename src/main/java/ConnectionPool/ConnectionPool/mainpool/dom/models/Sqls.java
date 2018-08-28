@@ -21,6 +21,12 @@ public class Sqls {
 		sql = PoolUtil.trimStr(sql);
 	}
 	
+	public void sqlParams(Map<String, Object> map,String key) {
+		sql = changeSqlParams(sql, map,key);
+		sql = changeSqlStrs(sql, map);
+		sql = PoolUtil.trimStr(sql);
+	}
+	
 	public static void main(String[] args) {
 		String aa = "\r\n" + 
 				"	        \r\n" + 
@@ -60,6 +66,25 @@ public class Sqls {
 			for (String string : ls) {
 				sql = new StringBuffer(sql.toString().replaceAll("#\\{" + string + "\\}", " ? "));
 				args[index++] = values.get(string);
+			}
+		}
+		return sql.toString();
+	}
+	
+	private String changeSqlParams(String context, Map<String, Object> values,String key) {
+		Pattern p = Pattern.compile(pattern);
+		StringBuffer sql = new StringBuffer(context);
+		if (sqlHasParams(sql.toString(), pattern) && values != null) {
+			Matcher m = p.matcher(sql);
+			List<String> ls = new ArrayList<String>();
+			while (m.find()) {
+				ls.add(m.group());
+			}
+			int index = 0;
+			for (String string : ls) {
+				sql = new StringBuffer(sql.toString().replaceAll("#\\{" + string + "\\}", "#\\{" + key + "." +string + "\\}"));
+				values.put(key + "." +string, values.get(string));
+				values.remove(string);
 			}
 		}
 		return sql.toString();

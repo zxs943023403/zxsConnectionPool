@@ -26,6 +26,7 @@ public class PoolConfig {
 	private static Pool signlePool;
 	private static DocumentBuilderFactory documentFactory ;
 	private static DocumentBuilder builder ;
+	private static Properties properties;
 	
 	private static PoolConfig config = new PoolConfig();
 	
@@ -36,7 +37,7 @@ public class PoolConfig {
 			Document document = builder.parse(Pool.class.getClassLoader().getResourceAsStream("resources.xml"));
 			Node configurationNode = document.getChildNodes().item(0);
 			NodeList nodes = configurationNode.getChildNodes();
-			Properties properties = new Properties();
+			properties = new Properties();
 			//read properties
 			for (int i = 0; i < nodes.getLength(); i++) {
 				Node node = nodes.item(i);
@@ -101,6 +102,17 @@ public class PoolConfig {
 			p = pools.get(datasourceid);
 		}
 		return p.exec(sql, type, args);
+	}
+	
+	public String getPropertiesValue(String key,String defaults) {
+		if (properties.containsKey(key)) {
+			return properties.getProperty(key);
+		}
+		return defaults;
+	}
+	
+	public String getPropertiesValue(String key) {
+		return getPropertiesValue(key,null);
 	}
 	
 }

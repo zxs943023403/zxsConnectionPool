@@ -44,7 +44,7 @@
 	    	</set>
 	    	where primarykey in 
 	    	<foreach item="item" index="index" collection="list" open="(" separator="," close=")" >
-	    		${item}
+	    		#{item}
 	    	</foreach>
 	    </update>
 	    

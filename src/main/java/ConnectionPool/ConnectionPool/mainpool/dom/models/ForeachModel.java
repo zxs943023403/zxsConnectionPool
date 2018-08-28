@@ -2,6 +2,7 @@ package ConnectionPool.ConnectionPool.mainpool.dom.models;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -45,7 +46,7 @@ public class ForeachModel extends MainModel {
 				forattr.put(item, m.get(key));
 				Sqls sqls = new Sqls();
 				sqls.sql = foreach;
-				sqls.sqlParams(forattr);
+				sqls.sqlParams(forattr,UUID.randomUUID().toString());
 				forStr += sqls.sql;
 			}
 		}
@@ -56,7 +57,7 @@ public class ForeachModel extends MainModel {
 				forattr.put(item, array.get(i));
 				Sqls sqls = new Sqls();
 				sqls.sql = foreach;
-				sqls.sqlParams(forattr);
+				sqls.sqlParams(forattr,UUID.randomUUID().toString());
 				forStr += sqls.sql;
 				if (i != array.size() -1) {
 					forStr += separator;

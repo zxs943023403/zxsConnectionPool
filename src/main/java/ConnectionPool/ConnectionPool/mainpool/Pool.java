@@ -26,6 +26,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.w3c.dom.Node;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
@@ -88,10 +89,9 @@ public class Pool {
 	}
 	
 	private synchronized void returnConn(Conn c) {
-		if (null == c) {
-			return;
+		if (null != c) {
+			conns.offer(c);
 		}
-		conns.offer(c);
 	}
 	
 	private synchronized Conn getConn() {
@@ -182,6 +182,7 @@ public class Pool {
 		public void run() {
 			// TODO Auto-generated method stub
 			try {
+				PrintLog.log("发送心跳请求！");
 				conn.exec(sql, EXEC_TYPE.TYPE_QUERY);
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -201,7 +202,7 @@ public class Pool {
 				connection = DriverManager.getConnection(url,id,pwd);
 				this.index = index;
 				timer = new Timer();
-				timer.schedule(new ConnHeartBeat(this), 600000,600000);
+				initTimer();
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -209,7 +210,9 @@ public class Pool {
 		}
 		
 		public synchronized Object exec(String sql,EXEC_TYPE type,Object ...args) throws SQLException {
+			dropTimer();
 			Object result = null;
+			sql = checkSql(sql);
 			PrintLog.log("sql:"+sql);
 			switch (type) {
 			case TYPE_UPDATE:
@@ -221,23 +224,32 @@ public class Pool {
 			default:
 				break;
 			}
+			initTimer();
 			return result;
 		}
 		
 		private synchronized boolean update(String sql,Object ...args) throws SQLException {
 			PreparedStatement pst = connection.prepareStatement(sql);
+			String arg = "[";
 			for (int i = 0; i < args.length; i++) {
 				pst.setObject(i+1, args[i]);
+				arg += args[i]+",";
 			}
+			arg = arg.substring(0,arg.length() - 1) + "]";
+			PrintLog.log("args:"+arg);
 			return pst.execute();
 		}
 		
 		private synchronized Object query(String sql,Object ...args) throws SQLException {
 			PreparedStatement pst = connection.prepareStatement(sql);
 			if (null != args) {
+				String arg = "[";
 				for (int i = 0; i < args.length; i++) {
 					pst.setObject(i+1, args[i]);
+					arg += args[i]+",";
 				}
+				arg = arg.substring(0,arg.length() - 1) + "]";
+				PrintLog.log("args:"+arg);
 			}
 			ResultSet set = pst.executeQuery();
 			JSONArray array = new JSONArray();
@@ -256,8 +268,19 @@ public class Pool {
 			return array;
 		}
 		
-		private void checkSql(String sql) {
+		private String checkSql(String sql) {
 			
+			 return sql;
+		}
+		
+		private void initTimer() {
+			timer = new Timer();
+			timer.schedule(new ConnHeartBeat(this), 600000,600000);
+		}
+		
+		private void dropTimer() {
+			timer.cancel();
+			timer = null;
 		}
 		
 	}

@@ -36,8 +36,8 @@ public class App {
     public static void main( String[] args ){
 //    	chaxunsql();
 //    	xiugaisql();
-    	chaxunmapper2with10000();
-//    	updatesmap();
+//    	chaxunmapper2with10000();
+    	updatesmap();
     }
     
     public static void updatesmap() {
